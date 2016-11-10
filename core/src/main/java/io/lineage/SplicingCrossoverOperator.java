@@ -28,6 +28,7 @@ public class SplicingCrossoverOperator implements CrossoverOperator
             lhs.set(i, g2);
             rhs.set(i, g1);
         }
+        
         // pair of newly created offspring
         return new Pair<Chromosome, Chromosome>(new Chromosome(lhs), new Chromosome(rhs));
     }

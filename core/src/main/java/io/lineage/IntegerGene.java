@@ -13,6 +13,8 @@ public class IntegerGene extends Gene<Integer>
 
     private final int max;
 
+    private final Random rand = new SecureRandom();
+
     public IntegerGene(final int value, final int min, final int max)
     {
         this.min = min;
@@ -26,7 +28,6 @@ public class IntegerGene extends Gene<Integer>
         final int mutmin = 3;
         final int mutmax = 9;
 
-        final Random rand = new SecureRandom();
         final int v = mutmin + rand.nextInt(mutmax - mutmin + 1);
         if (rand.nextBoolean())
             this.value = Math.min(max,this.value + v);
