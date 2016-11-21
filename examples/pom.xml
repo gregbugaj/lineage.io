@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.lineage</groupId>
-    <artifactId>lineage-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
-  </parent>
+	<parent>
+		<groupId>io.lineage</groupId>
+		<artifactId>lineage-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent</relativePath>
+	</parent>
 
-  <artifactId>examples</artifactId>
-  <name>Lineage IO :: Example</name>
-  <description>Lineage IO Examples</description>
-  <packaging>pom</packaging>
+	<artifactId>examples</artifactId>
+	<name>Lineage IO :: Example</name>
+	<description>Lineage IO Examples</description>
+	<packaging>pom</packaging>
 
-  <modules>
-    <module>lineage-example-helloworld</module>
-  </modules>
+	<modules>
+		<module>lineage-example-helloworld</module>
+	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>io.lineage</groupId>
+			<artifactId>lineage-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 </project>
