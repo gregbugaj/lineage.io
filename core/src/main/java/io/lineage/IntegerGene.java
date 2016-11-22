@@ -8,36 +8,55 @@ import java.util.Random;
  */
 public class IntegerGene extends Gene<Integer>
 {
+    final int min;
 
-    private final int min;
+    final int max;
 
-    private final int max;
-
-    private final Random rand = new SecureRandom();
+    final Random rand = new SecureRandom();
 
     public IntegerGene(final int value, final int min, final int max)
     {
         this.min = min;
         this.max = max;
-        this.value = value;
+        this.allele = value;
     }
 
     @Override
     public void mutate()
     {
-        final int mutmin = 3;
-        final int mutmax = 9;
+        System.out.println("MUTATING GENE");
+        final int mutmin = min;
+        final int mutmax = max;
+        final int rval = mutmin + rand.nextInt(mutmax - mutmin + 1);
+        // clamp
+        int v = Math.min(max,rval);
 
-        final int v = mutmin + rand.nextInt(mutmax - mutmin + 1);
-        if (rand.nextBoolean())
-            this.value = Math.min(max,this.value + v);
-        else
-            this.value = Math.max(min,this.value - v);
+        // System.out.println("  MUATING : " + rval + "   > " + (char)(this.allele.intValue()) + " :: " + (char)v);
+        // this.value = Math.max(min,this.value - rval);
+        this.allele = v;
+
+    }
+ 
+    @Override
+    protected IntegerGene clone() throws CloneNotSupportedException
+    {
+        return new IntegerGene(allele,min,max);
     }
 
     @Override
-    protected Gene<Integer> clone() throws CloneNotSupportedException
+    public boolean equals(Object obj)
     {
-        return new IntegerGene(value,min,max);
+        if (!(obj instanceof IntegerGene))
+            return false;
+
+        final IntegerGene that = (IntegerGene)obj;
+        return this.allele.equals(that.allele);
     }
+
+    @Override
+    public int hashCode()
+    {
+        return this.allele.hashCode();
+    }
+
 }

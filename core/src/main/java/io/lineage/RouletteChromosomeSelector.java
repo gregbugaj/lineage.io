@@ -1,82 +1,102 @@
 package io.lineage;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Roulette Wheel selection algorithem
+ * roulette-wheel selection via stochastic acceptance
+ * 
+ * Roulette Wheel selection algorithem https://en.wikipedia.org/wiki/Fitness_proportionate_selection
+ * 
  * @ref http://geneticalgorithms.ai-depot.com/Tutorial/Overview.html
- * @author gbugaj
+ * 
+ *      Roulette-wheel selection via stochastic acceptance http://arxiv.org/pdf/1109.3627.pdf
+ * 
+ *      https://www.researchgate.net/publication/51962025_Roulette-wheel_selection_via_stochastic_acceptance
  *
  */
 public class RouletteChromosomeSelector implements ChromosomeSelector
 {
-    private static final Random SR = new SecureRandom();
 
-    private final FitnessComparator FITNESS_COMPARATOR = new FitnessComparator();
+    public Pair<Chromosome, Chromosome> select000(final Population population)
+    {
+        double sum = 0d;
+        for (final Chromosome c : population)
+        {
+            sum += c.fitness;
+        }
+        return new Pair<Chromosome, Chromosome>(choose(population,sum),choose(population,sum));
+    }
 
     @Override
-    public Pair<Chromosome, Chromosome> select(final List<Chromosome> population)
+    public Pair<Chromosome, Chromosome> selectPair(final Population population)
     {
+        final Population clone = population.clone();
+        final Chromosome p1 = select(clone);
+        clone.removeAll(Arrays.asList(p1));
+        Chromosome p2 = null;
+        p2 = select(clone);
+        return new Pair<Chromosome, Chromosome>(p1,p2);
+    }
 
-        if (false)
-        {
-            Collections.sort(population, FITNESS_COMPARATOR);
-            new Pair<Chromosome, Chromosome>(population.get(0), population.get(1));
-        }
+    @Override
+    public Chromosome select(final Population population)
+    {
+        final Random rand = new SecureRandom();
+        double maxFitness = Integer.MIN_VALUE; //Double.MIN_VALUE;
 
-        double fitnessSum = 0d;
         for (final Chromosome c : population)
-            fitnessSum += c.fitness;
-        
-        if (true)
         {
-            final Chromosome c1 = choose(population, fitnessSum);
-            final Chromosome c2 = choose(population, fitnessSum);
-
-            return new Pair<Chromosome, Chromosome>(c1, c2);
+            /*
+                 if (c.fitness < 0)
+                throw new IllegalStateException("Fittness score should be in [0, 1] range but got " + c.fitness );
+             */
+            System.out.println(c.fitness + " :: " + maxFitness);
+            if (c.fitness > maxFitness)
+                maxFitness = c.fitness;
         }
 
-        /**
-         */
-        // roulette-wheel selection via stochastic acceptance
-        final List<Chromosome> pair = new ArrayList<Chromosome>();
         final int size = population.size();
         int spins = 0;
-        // esimated average spin t = fmax / avg(f) 
+
+        if (maxFitness == 0)
+        {
+            return population.get(rand.nextInt(size));
+        }
+
+        // esimated average spin t = fmax / avg(f)
+        Chromosome candidate = null;
         for (;;)
         {
             ++spins;
             // Select randomly one of the individuals
-            final Chromosome rc = population.get(SR.nextInt(size));
-            final double r = SR.nextDouble();
-            final double p = rc.fitness / fitnessSum;
+            candidate = population.get(rand.nextInt(size));
+            final double r = rand.nextDouble();
+            final double p = candidate.fitness / maxFitness;
+
             if (r < p)
             {
-                //                System.out.println("SOLUTION : " + p + "  ::  " + rc);
-                pair.add(rc);
-                if (pair.size() == 2)
-                    break;
+                return candidate;
             }
         }
-        return new Pair<Chromosome, Chromosome>(pair.get(0), pair.get(1));
-
     }
 
-    private Chromosome choose(final List<Chromosome> population, final double fitnessSum)
+    private Chromosome choose(final Population population, final double fitnessSum)
     {
-        final float rnd = (float) (Math.random() * fitnessSum);
-        double running = 0d;
-        for (final Chromosome c : population)
+        while (true)
         {
-            if (rnd >= running && rnd <= running + c.fitness)
-                return c;
-            running += c.fitness;
+            final float rnd = (float)(Math.random() * fitnessSum);
+            double running = 0d;
+            for (final Chromosome c : population)
+            {
+                if (rnd >= running && rnd <= (running + c.fitness))
+                {
+                    return c;
+                }
+                running += c.fitness;
+            }
         }
-
-        return null;
     }
+
 }

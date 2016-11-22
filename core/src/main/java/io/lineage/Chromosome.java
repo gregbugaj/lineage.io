@@ -6,15 +6,24 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Chromosome represents a single solution to our problem 
- * Each chromosome is made up of several genes
+ * Chromosome represents a single solution to our problem. 
+ * The term genotype refers to the particular set of genes contained in a genome
+ * 
+ * phenotype— gives physical and mental characteristics, such as eye color, height, brain size, and intelligence.
  */
 public class Chromosome
 {
+    /**
+     * Evaluated fitness of this solution
+     */
     public double fitness;
 
     public List<Gene<?>> genes = new ArrayList<Gene<?>>();
 
+    private final Random rand = new SecureRandom();
+
+    public int mutationsPerCycle;
+    
     public Chromosome()
     {
 
@@ -25,55 +34,53 @@ public class Chromosome
         this.genes = genes;
     }
 
-    public static interface Encoder<T>
-    {
-        Chromosome encode(final T data);
-    }
-
-    public static interface Decoder<T>
-    {
-        T decode(final Chromosome chromosome);
-    }
-
     public int getGeneLenght()
     {
         return genes.size();
     }
 
-
     /**
-     * Mutate current chromosome
-     * This is the chance that a bit within a chromosome will be flipped (0 becomes 1, 1 becomes 0).
-     *  This is usually a very low value for binary encoded genes
+     * Mutate current {@link Chromosome}. This is the chance that a value within a chromosome will be flipped (0 becomes 1, 1 becomes 0). This is usually a very
+     * low value for binary encoded genes 100 if you have 1% mutation probability it means that 1 out of your 100 bits (on average) picked at random will be
+     * flipped.
+     * 
+     * @ref http://www.geatbx.com/docu/algindex-04.html#P666_44497 
+     *  http://www.optiwater.com/optiga/ga.html Each bit in each chromosome is checked for possible
+     *      mutation by generating a random number between zero and one and if this number is less than or equal to the given mutation probability e.g. 0.001
+     *      then the value is changed.
      */
     public void mutate()
     {
-        final GAExecutionContext context = GAExecutionContext.currentExecutionContext();
-        final double mutationRate = context.mutationRate;
-        final Random r = new SecureRandom();
-        //        System.out.println("gene before : " + genes);
-        for (int i = genes.size() - 1; i >= 0; --i)
+        mutationsPerCycle = 0;
+        // mutation rate of 1/n
+        final int n = genes.size();
+        final double p = (double)1 / n;
+        for (final Gene<?> gene : genes)
         {
-            float mr = r.nextFloat();
-            if (mr < mutationRate)
+            if (rand.nextDouble() < p)
             {
-                System.out.println("Mutating : " + mr);
-                genes.get(i).mutate();
+                ++mutationsPerCycle;
+                gene.mutate();
             }
         }
-        //        System.out.println("gene after  : " + genes);
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(genes.toString());
+        final GAExecutionContext context = GAExecutionContext.currentExecutionContext();
+        final Decoder<Object> decoder = context.getDecoder();
 
-        return builder.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Fitness").append("\t").append(fitness).append("\t").append(genes).append(" -> ").append(decoder.decode(this))
+
+        ;
+
+        return sb.toString();
     }
 
     /**
+     * Return copy of our genes
      * 
      * @return copy of our genes
      */
@@ -81,22 +88,23 @@ public class Chromosome
     {
         try
         {
-            final List<Gene<?>> copy = new ArrayList<Gene<?>>();
+            final List<Gene<?>> copy = new ArrayList<>();
             for (final Gene<?> g : genes)
+            {
                 copy.add(g.clone());
+            }
 
             return copy;
         }
         catch (final Throwable t)
         {
-            t.printStackTrace();
+            throw new RuntimeException("we are not able to make a copy of our genes", t);
         }
-
-        throw new RuntimeException("we are not able to make a copy of our genes");
     }
 
     /**
-     * @param genes the genes to set
+     * @param genes
+     *            the genes to set
      */
     public void setGenes(final List<Gene<?>> genes)
     {
@@ -109,5 +117,45 @@ public class Chromosome
             throw new NullPointerException("Gene can't be null");
 
         this.genes.add(gene);
+    }
+
+    /**
+     * Equivalence is made by checking each gene against each other
+     */
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (!(obj instanceof Chromosome))
+            return false;
+
+        final Chromosome that = (Chromosome)obj;
+
+        for (final Gene<?> g1 : genes)
+        {
+            boolean found = false;
+            for (final Gene<?> g2 : that.genes)
+            {
+                if (g1.equals(g2))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (found == false)
+                return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 1;
+        for (final Gene<?> g1 : genes)
+        {
+            hash = 31 * hash + g1.hashCode();
+        }
+        return hash;
     }
 }

@@ -1,7 +1,5 @@
 package io.lineage;
 
-import io.lineage.Chromosome.Encoder;
-
 import java.util.BitSet;
 
 
@@ -77,7 +75,6 @@ public abstract class BaseEncoder<T> implements Encoder<T>
 
     private static Gene makeIntBySize(int p1, int geneSizeInt)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 

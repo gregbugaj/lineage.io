@@ -1,7 +1,5 @@
 package io.lineage;
 
-import io.lineage.Chromosome.Decoder;
-
 import java.util.BitSet;
 
 /**

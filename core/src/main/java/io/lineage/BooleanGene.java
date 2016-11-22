@@ -9,7 +9,7 @@ public class BooleanGene extends Gene<Boolean>
 
     public BooleanGene(final boolean value)
     {
-        this.value = value;
+        this.allele = value;
     }
 
     @Override
@@ -22,6 +22,6 @@ public class BooleanGene extends Gene<Boolean>
     @Override
     protected Gene<Boolean> clone() throws CloneNotSupportedException
     {
-        return new BooleanGene(value);
+        return new BooleanGene(allele);
     }
 }

@@ -1,13 +1,14 @@
 package io.lineage;
 
+@FunctionalInterface
 public interface CrossoverOperator
 {
     /**
+     * Crate a crossover between to parents
      * 
      * @param parent1
      * @param parent2
-     * @return pair of offsprings
+     * @return  new offspring
      */
-    Pair<Chromosome, Chromosome> crossover(final Chromosome parent1, final Chromosome parent2);
-
+    Chromosome crossover(final Chromosome parent1, final Chromosome parent2);
 }

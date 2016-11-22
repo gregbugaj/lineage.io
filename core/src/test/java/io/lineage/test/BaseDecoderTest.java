@@ -3,9 +3,7 @@ package io.lineage.test;
 import org.junit.Test;
 
 /**
- * Test bacis encodingig decoding functionality
- * @author gbugaj
- *
+ * Test basic encoding/decoding functionality 
  */
 public class BaseDecoderTest
 {

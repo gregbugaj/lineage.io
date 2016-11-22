@@ -2,16 +2,20 @@ package io.lineage;
 
 /**
  * 
- * @author gbugaj
- *
  */
 public interface FitnessSelector
 {
     /**
-     * Calculate fintess of given chromosome
-     * @param source chromosome
-     * @param target  chromosome
-     * @return
+     * Calculate fitness of given population against given target
+     * 
+     * @param solutions
+     * @param target
      */
-    double fitness(final Chromosome target);
+//    void evaluate(final Population solutions, final Chromosome target);
+    
+    /**
+     * Calculate fitness of given indiviudal
+     * @param target
+     */
+    void evaluate(final Chromosome target);
 }

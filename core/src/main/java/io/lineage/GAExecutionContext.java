@@ -1,11 +1,9 @@
 package io.lineage;
 
-import io.lineage.Chromosome.Decoder;
-import io.lineage.Chromosome.Encoder;
+import static io.lineage.Assert.notNull;
+import io.lineage.AcceptanceEvaluator.Evaluation;
 
-import java.util.Collections;
-import java.util.List;
-
+import java.util.Comparator;
 
 /**
  * Context for executing GA algorithm
@@ -14,28 +12,32 @@ public class GAExecutionContext
 {
     private static final ThreadLocal<GAExecutionContext> storage = new ThreadLocal<GAExecutionContext>();
 
-    /**
-     * Default population size when generating
-     */
-    private final int populationSize = 100;
+    private final int elitism = 4;
 
     /**
      * This is the crossover rate
      */
-    public final float crossoverRate = 0.7f;
+    public final double crossoverRate = 0.7f;
 
     /**
-     * Mutation rate 
+     * Mutation rate
      */
-    public final float mutationRate = 0.01f;
+    public final double mutationRate = 0.001f;
 
     /**
-     * Encoder used for encoding Objects into Chromos
+     * Default acceptance threshold
+     */
+    public final double defaultSolutionAcceptanceThreashold = .95;
+
+    public final boolean defaultSolutionAcceptanceStop = false;
+
+    /**
+     * Encoder used for encoding Objects into Chromosomes
      */
     private Encoder<?> encoder;
 
     /**
-     * Decored used for decoding bitstream into Chromosomes
+     * Decoder used for decoding bitstream into Chromosomes
      */
     private Decoder<?> decoder;
 
@@ -45,21 +47,19 @@ public class GAExecutionContext
 
     private CrossoverOperator crossoverOperator;
 
-    /**
-     * This represents list of all acceptable solutions
-     */
-    private List<Chromosome> solutions;
+    private AcceptanceEvaluator acceptanceEvaluator;
 
-    private boolean timedIteration;
+    private final Comparator<Chromosome> fitnessComparator = new FitnessComparator();
 
     /**
-     * How long will the GA run
+     * Current generation that is being evolved
      */
-    private long timedIterationTime = 5;
+    int currentGeneration;
 
-    private int iterationCount = 100;
-
-    private double acceptableFitnessScore;
+    /**
+     * Population representing our solution space
+     */
+    private Population solutions;
 
     static
     {
@@ -69,17 +69,23 @@ public class GAExecutionContext
     private static void bootstrap()
     {
         final GAExecutionContext context = new GAExecutionContext();
+
         context.chromosomeSelector = new RouletteChromosomeSelector();
         context.crossoverOperator = new SplicingCrossoverOperator();
-        context.solutions = Collections.emptyList();
+
+        // Default
+        context.setAcceptanceEvaluator((final Chromosome c) -> {
+            
+            System.out.println("Chromosome " + c);
+            System.out.println("Chromosome fitness " + c.fitness);
+            return new Evaluation(c.fitness > context.defaultSolutionAcceptanceThreashold,context.defaultSolutionAcceptanceStop,c);
+        });
 
         storage.set(context);
     }
 
     /**
-     * Get Current {@link GAExecutionContext} this method will throw
-     * {@link IllegalStateException} if the context have not
-     * yet been created.
+     * Get Current {@link GAExecutionContext} this method will throw {@link IllegalStateException} if the context have not yet been created.
      * 
      * @return Current context that is used for execution.
      */
@@ -98,14 +104,16 @@ public class GAExecutionContext
     @SuppressWarnings("unchecked")
     public <T> Encoder<T> getEncoder()
     {
-        return (Encoder<T>) encoder;
+        return (Encoder<T>)encoder;
     }
 
     /**
-     * @param encoder the encoder to set
+     * @param encoder
+     *            the encoder to set
      */
     public void setEncoder(final Encoder<?> encoder)
     {
+        notNull(encoder);
         this.encoder = encoder;
     }
 
@@ -115,23 +123,17 @@ public class GAExecutionContext
     @SuppressWarnings("unchecked")
     public <T> Decoder<T> getDecoder()
     {
-        return (Decoder<T>) decoder;
+        return (Decoder<T>)decoder;
     }
 
     /**
-     * @param decoder the decoder to set
+     * @param decoder
+     *            the decoder to set
      */
     public void setDecoder(final Decoder<?> decoder)
     {
+        notNull(decoder);
         this.decoder = decoder;
-    }
-
-    /**
-     * @return the populationSize
-     */
-    public int getPopulationSize()
-    {
-        return populationSize;
     }
 
     /**
@@ -143,10 +145,12 @@ public class GAExecutionContext
     }
 
     /**
-     * @param fitnessSelector the fitnessSelector to set
+     * @param fitnessSelector
+     *            the fitnessSelector to set
      */
     public void setFitnessSelector(final FitnessSelector fitnessSelector)
     {
+        notNull(fitnessSelector);
         this.fitnessSelector = fitnessSelector;
     }
 
@@ -159,26 +163,13 @@ public class GAExecutionContext
     }
 
     /**
-     * @return the solutions
-     */
-    public List<Chromosome> getSolutions()
-    {
-        return solutions;
-    }
-
-    /**
-     * @param solutions the solutions to set
-     */
-    public void setSolutions(final List<Chromosome> solutions)
-    {
-        this.solutions = solutions;
-    }
-
-    /**
-     * @param chromosomeSelector the chromosomeSelector to set
+     * @param chromosomeSelector
+     *            the chromosomeSelector to set
      */
     public void setChromosomeSelector(final ChromosomeSelector chromosomeSelector)
     {
+        Assert.notNull(chromosomeSelector);
+
         this.chromosomeSelector = chromosomeSelector;
     }
 
@@ -191,71 +182,42 @@ public class GAExecutionContext
     }
 
     /**
-     * @param crossoverOperator the crossoverOperator to set
+     * @param crossoverOperator
+     *            the crossoverOperator to set
      */
     public void setCrossoverOperator(final CrossoverOperator crossoverOperator)
     {
         this.crossoverOperator = crossoverOperator;
     }
 
-    /**
-     * @return the timedIteration
-     */
-    public boolean isTimedIteration()
+    public int getElitism()
     {
-        return timedIteration;
+        return elitism;
     }
 
-    /**
-     * @param timedIteration the timedIteration to set
-     */
-    public void setTimedIteration(final boolean timedIteration)
+    public Comparator<Chromosome> getFitnessComparator()
     {
-        this.timedIteration = timedIteration;
+        return fitnessComparator;
     }
 
-    /**
-     * @return the timedIterationTime
-     */
-    public long getTimedIterationTime()
+    public void setSolutions(final Population population)
     {
-        return timedIterationTime;
+        this.solutions = population;
     }
 
-    /**
-     * @param timedIterationTime the timedIterationTime to set
-     */
-    public void setTimedIterationTime(final long timedIterationTime)
+    public Population getSolutions()
     {
-        this.timedIterationTime = timedIterationTime;
+        return solutions;
     }
 
-    public int getIterationCount()
+    public AcceptanceEvaluator getAcceptanceEvaluator()
     {
-        return iterationCount;
+        return acceptanceEvaluator;
     }
 
-    /**
-     * @param iterationCount the iterationCount to set
-     */
-    public void setIterationCount(final int iterationCount)
+    public void setAcceptanceEvaluator(final AcceptanceEvaluator acceptanceEvaluator)
     {
-        this.iterationCount = iterationCount;
+        this.acceptanceEvaluator = acceptanceEvaluator;
     }
 
-    /**
-     * @return the acceptableFitnessScore
-     */
-    public double getAcceptableFitnessScore()
-    {
-        return acceptableFitnessScore;
-    }
-
-    /**
-     * @param acceptableFitnessScore the acceptableFitnessScore to set
-     */
-    public void setAcceptableFitnessScore(final double acceptableFitnessScore)
-    {
-        this.acceptableFitnessScore = acceptableFitnessScore;
-    }
 }

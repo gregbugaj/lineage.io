@@ -2,22 +2,13 @@ package io.lineage;
 
 /**
  * Lowest building block
- * 
- * @author gbugaj
  */
 public abstract class Gene<T>
 {
-    protected T value;
-
-    public T getValue()
-    {
-        return value;
-    }
-
-    /*
-     * public Gene(final BitSet bits, final int encodingLength) { this.bits =
-     * bits; this.encodingLength = encodingLength; }
+    /**
+     * Value represented by this gene
      */
+    protected T allele;
 
     /**
      * Clone current gene
@@ -31,17 +22,23 @@ public abstract class Gene<T>
     public abstract void mutate();
 
     /**
-     * @param value the value to set
+     * @param allele the value to set
      */
-    public void setValue(final T value)
+    public void setAllele(final T allele)
     {
-        this.value = value;
+        this.allele = allele;
     }
 
+    public T getAllele()
+    {
+        return allele;
+    }
+    
+    
     @Override
     public String toString()
     {
-        return "G :" + value;
+        return "G :" + allele;
     }
-
+    
 }
