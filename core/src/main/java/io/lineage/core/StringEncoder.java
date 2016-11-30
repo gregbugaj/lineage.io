@@ -18,7 +18,7 @@ public class StringEncoder extends BaseEncoder<String>
         final Chromosome chromosome = new Chromosome();
         for (final char ch : data.toCharArray())
         {
-            chromosome.add(new IntegerGene(ch,65,127));
+            chromosome.add(new IntegerGene(ch, 65, 127));
         }
         return chromosome;
     }

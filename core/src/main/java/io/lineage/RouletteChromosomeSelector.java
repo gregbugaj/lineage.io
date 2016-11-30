@@ -22,10 +22,12 @@ public class RouletteChromosomeSelector implements ChromosomeSelector
     public Pair<Chromosome, Chromosome> select000(final Population population)
     {
         double sum = 0d;
+        
         for (final Chromosome c : population)
         {
             sum += c.fitness;
         }
+        
         return new Pair<Chromosome, Chromosome>(choose(population,sum),choose(population,sum));
     }
 

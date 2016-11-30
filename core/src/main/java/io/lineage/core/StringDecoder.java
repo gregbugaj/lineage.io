@@ -1,10 +1,10 @@
 package io.lineage.core;
 
+import java.util.List;
+
 import io.lineage.BaseDecoder;
 import io.lineage.Chromosome;
 import io.lineage.Gene;
-
-import java.util.List;
 
 /**
  * Decoder used to decode given {@link Chromosome} into a String value.
@@ -22,8 +22,9 @@ public class StringDecoder extends BaseDecoder<String>
 
         for (final Gene<?> g : genes)
         {
-            final Gene<Integer> gi = (Gene<Integer>)g;
-            final char c = (char)gi.getAllele().intValue();
+            final Gene<Integer> gi = (Gene<Integer>) g;
+            final char c = (char) gi.getAllele().intValue();
+            
             buff.append(c);
         }
 

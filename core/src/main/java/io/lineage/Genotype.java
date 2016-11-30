@@ -51,7 +51,7 @@ public class Genotype
         final SecureRandom r = new SecureRandom();
         final int size = chromosomes.size();
 
-        // Elitis
+        // Elitism
         List<Chromosome> survivors = getFittest(4);
         nextpop.addAll(survivors);
         
@@ -61,16 +61,14 @@ public class Genotype
             final Chromosome nc;
             if (r.nextDouble() > context.crossoverRate)
             {
-                final Pair<Chromosome, Chromosome> offsprings = crossoverOperator.crossover(parents.getA(),
-                                                                                            parents.getB());
-                // We only pick one offspring
-                nc = offsprings.getA();
+                nc  = crossoverOperator.crossover(parents.getA(), parents.getB());
                 nc.mutate();
             }
             else
             {
                 nc = parents.getA();
             }
+            
             nextpop.add(nc);
         }
 
@@ -89,53 +87,7 @@ public class Genotype
         return chromosomes.subList(0, best); 
     }
 
-    public void evolveX()
-    {
-        final GAExecutionContext context = GAExecutionContext.currentExecutionContext();
-        final ChromosomeSelector chromosomeSelector = context.getChromosomeSelector();
-        final CrossoverOperator crossoverOperator = context.getCrossoverOperator();
-
-        final List<Chromosome> currentpop = new ArrayList<Chromosome>(chromosomes);
-
-        determineFitness(currentpop);
-
-        System.out.println("--- Population ");
-        // Select two members from the current population. 
-        final List<Chromosome> nextpop = new ArrayList<Chromosome>();
-
-        final SecureRandom r = new SecureRandom();
-        for (int i = 0, k = chromosomes.size(); i < k; ++i)
-        {
-            final Pair<Chromosome, Chromosome> parents = chromosomeSelector.select(currentpop);
-            final Chromosome nc;
-            if (r.nextDouble() > context.crossoverRate)
-            {
-                final Pair<Chromosome, Chromosome> offsprings = crossoverOperator.crossover(parents.getA(),
-                                                                                            parents.getB());
-                // We only pick one offspring
-                nc = offsprings.getA();
-            }
-            else
-            {
-                nc = parents.getA();
-            }
-
-            System.out.println("NC : " + nc.fitness);
-            nextpop.add(nc);
-        }
-
-        for (int i = 0, k = chromosomes.size(); i < k; ++i)
-        {
-            final Chromosome c = nextpop.get(i);
-            c.mutate();
-        }
-
-        //        
-
-        determineFitness(nextpop);
-        chromosomes = nextpop;
-    }
-
+    
     public Chromosome getFittest()
     {
         Collections.sort(chromosomes, fitnessComparator);

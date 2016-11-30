@@ -1,8 +1,5 @@
 package io.lineage;
 
-import io.lineage.AcceptanceEvaluator.Evaluation;
-import io.lineage.solver.Solver;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.lineage.AcceptanceEvaluator.Evaluation;
+import io.lineage.solver.Solver;
 
 /**
  * http://www.omgwiki.org/hpec/files/hpec-challenge/ga.html http://www.optiwater.com/optiga/ga.html
@@ -85,7 +85,7 @@ public abstract class BaseSolver implements Solver
 
     public List<Chromosome> getNFittest(final Population population, final int best)
     {
-        final List<Chromosome> selection = population.getRange(0,best);
+        final List<Chromosome> selection = population.getRange(0, best);
         for (final Chromosome c : selection)
         {
             System.out.println("  BEST   Survivor --- " + c);
@@ -93,6 +93,7 @@ public abstract class BaseSolver implements Solver
         return new ArrayList<>(selection);
     }
 
+    @Override
     public Population evolve(final Population in)
     {
         System.out.println("\n\n");
@@ -113,7 +114,7 @@ public abstract class BaseSolver implements Solver
 
         // elitism : For each iteration, the best 20% of the chromosomes from the old
         // population are copied to the new population
-        final List<Chromosome> survivors = getNFittest(population,esize);
+        final List<Chromosome> survivors = getNFittest(population, esize);
         nextpop.addAll(survivors);
         nextpop.dump(" *** Survivors ");
 

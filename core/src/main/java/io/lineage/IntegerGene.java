@@ -28,19 +28,20 @@ public class IntegerGene extends Gene<Integer>
         final int mutmin = min;
         final int mutmax = max;
         final int rval = mutmin + rand.nextInt(mutmax - mutmin + 1);
+
         // clamp
-        int v = Math.min(max,rval);
+        int v = Math.min(max, rval);
 
         // System.out.println("  MUATING : " + rval + "   > " + (char)(this.allele.intValue()) + " :: " + (char)v);
         // this.value = Math.max(min,this.value - rval);
         this.allele = v;
 
     }
- 
+
     @Override
     protected IntegerGene clone() throws CloneNotSupportedException
     {
-        return new IntegerGene(allele,min,max);
+        return new IntegerGene(allele, min, max);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class IntegerGene extends Gene<Integer>
         if (!(obj instanceof IntegerGene))
             return false;
 
-        final IntegerGene that = (IntegerGene)obj;
+        final IntegerGene that = (IntegerGene) obj;
         return this.allele.equals(that.allele);
     }
 

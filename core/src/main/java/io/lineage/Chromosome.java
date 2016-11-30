@@ -9,7 +9,7 @@ import java.util.Random;
  * Chromosome represents a single solution to our problem. 
  * The term genotype refers to the particular set of genes contained in a genome
  * 
- * phenotype— gives physical and mental characteristics, such as eye color, height, brain size, and intelligence.
+ * phenotypeï¿½ gives physical and mental characteristics, such as eye color, height, brain size, and intelligence.
  */
 public class Chromosome
 {
@@ -54,7 +54,8 @@ public class Chromosome
         mutationsPerCycle = 0;
         // mutation rate of 1/n
         final int n = genes.size();
-        final double p = (double)1 / n;
+        final double p = (double) 1 / n;
+        
         for (final Gene<?> gene : genes)
         {
             if (rand.nextDouble() < p)
